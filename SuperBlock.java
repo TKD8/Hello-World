@@ -27,4 +27,10 @@ public class SuperBlock
             format(defaultInodeBlocks);
         }
     }
+
+    // this will format the disk
+    public void format(int numFiles)
+    {
+    	//need work
+    }
 }
