@@ -129,7 +129,7 @@ public class Scheduler extends Thread
                     // close any open file descriptors rather than decrement the counts
                     // to ensure that system-wide file table entries are removed
                     // when no longer needed
-                    SysLib.close( i );
+                    SysLib.close(i);
             return tcb.setTerminated( );
         }
     }

@@ -23,7 +23,7 @@ public class SuperBlock
 	 public SuperBlock(){
 	 	 totalBlocks = 0;
 		 inodeBlocks = 0;
-		 freelist = 0;
+		 freeList = 0;
 	 }
 	 
 	/**
@@ -86,11 +86,11 @@ public class SuperBlock
 		byte [] newEmpty = null;	// new dummy blocks
 
 		for (int j = freeList; j < totalBlocks; j++){
-			newEmpty = new byte[Disk.blockSize];
+			newEmpty = new byte[512];
 
 			// erase everything
 			for(int k = 0; k < 512; k++){
-				newEmpty[j] = 0;
+				newEmpty[k] = 0;
 			}
 
 			SysLib.int2bytes(j+1, newEmpty, 0);
@@ -111,39 +111,39 @@ public class SuperBlock
 		SysLib.rawwrite(0, arrayOfByte);
 	}
 
-/**
- * nextFreeBlock
- */
- public int nextFreeBlock()
-  {
-    int i = freeList;
-    
+    /**
+     * nextFreeBlock
+     */
+     public int getFreeBlock()
+      {
+        int i = freeList;
 
-    if (i != -1) {
-      byte[] arrayOfByte = new byte[Disk.blockSize];
-      
-      SysLib.rawread(i, arrayOfByte);
-      freeList = SysLib.bytes2int(arrayOfByte, 0);	// update next free block
-      
-      SysLib.int2bytes(0, arrayOfByte, 0);
-      SysLib.rawwrite(i, arrayOfByte);
-    }
-    return i;	// return block location
-  }
 
- public boolean returnBlock(int paramInt)
-  {
-    if (paramInt >= 0) {
-      byte[] arrayOfByte = new byte[Disk.blockSize];
-      
-      for (int i = 0; i < 512; i++)
-        arrayOfByte[i] = 0;
-      SysLib.int2bytes(freeList, arrayOfByte, 0);
-      SysLib.rawwrite(paramInt, arrayOfByte);
-      freeList = paramInt;
-      return true;
-    }
-    return false;
-  }
+        if (i != -1) {
+          byte[] arrayOfByte = new byte[Disk.blockSize];
+
+          SysLib.rawread(i, arrayOfByte);
+          freeList = SysLib.bytes2int(arrayOfByte, 0);	// update next free block
+
+          SysLib.int2bytes(0, arrayOfByte, 0);
+          SysLib.rawwrite(i, arrayOfByte);
+        }
+        return i;	// return block location
+      }
+
+    public boolean returnBlock(int paramInt)
+     {
+       if (paramInt >= 0) {
+         byte[] arrayOfByte = new byte[Disk.blockSize];
+
+         for (int i = 0; i < 512; i++)
+           arrayOfByte[i] = 0;
+         SysLib.int2bytes(freeList, arrayOfByte, 0);
+         SysLib.rawwrite(paramInt, arrayOfByte);
+         freeList = paramInt;
+         return true;
+       }
+       return false;
+     }
    
 }

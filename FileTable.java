@@ -1,10 +1,14 @@
+import java.util.Vector;
+
 public class FileTable {
 
     private Vector<FileTableEntry> table;         // the actual entity of this file table
     private Directory dir;        // the root directory
+    short USED = 0;
+    short UNUSED = 0;
 
     public FileTable( Directory directory ) { // constructor
-       table = new Vector<FileTableEntry>;     // instantiate a file (structure) table
+       table = new Vector<FileTableEntry>();     // instantiate a file (structure) table
        dir = directory;           // receive a reference to the Director
     }                             // from the file system
 
@@ -15,38 +19,39 @@ public class FileTable {
     // immediately write back this inode to the disk
     // return a reference to this file (structure) table entry
     public synchronized FileTableEntry falloc( String filename, String mode ) {
-        short iNumber = -1
-        Inode inode = NULL;
+        short iNumber = -1;
+        Inode inode = null;
 
         while (true)
         {
             iNumber = filename.equals("/") ? 0 : dir.namei(filename);
+            if(iNumber < 0){
+                break;
+            }
             if (iNumber >= 0)
             {
                 inode = new Inode(iNumber);
                 if (mode.compareTo("r") == 0)
                 {
-                    if (inode.flag == READ || inode.flag == USED ||
-                    inode.flag == UNUSED)
+                    if (inode.flag == 0 ||
+                    inode.flag == 0)
                     {
-                        inode.flag = READ;
+                        inode.flag = 1;
                     }
                     break;
                 }
-                else if (inode.flag == WRITE)
-                {
                     try
                     {
                         wait();
                     }
                     catch (InterruptedException e)
                     {}
-                }
-                else
+                
+            }else
                 {
-                    if (inode.flag == UNUSED || inode.flag == USED )
+                    if (inode.flag == 0 || inode.flag == 3 )
                     {
-                        inode.flag = WRITE;
+                        inode.flag = 2;
                         break;
                     }
                     else
@@ -59,24 +64,24 @@ public class FileTable {
                     }
 
             }
-            else if (!mode.equals("r"))
+            if (!mode.equals("r"))
             {
                 iNumber = dir.ialloc(filename);
-                inode = new Inode(inumber);
-                inode.flag = WRITE;
+                inode = new Inode();
+                inode.flag = 2;
                 break;
             }
             else
-                return NULL;
+                return null;
 
         }
 
         inode.count++;
         inode.toDisk(iNumber);
-        FileTableEntry fte = new FileTableEntry(inode, Inumber, mode);
+        FileTableEntry fte = new FileTableEntry(inode, iNumber, mode);
         table.addElement(fte);
         return fte;
-
+        
     }
 
     // receive a file table entry reference
@@ -87,7 +92,12 @@ public class FileTable {
         if(table.removeElement(e))
         {
             e.inode.count--;
-            if (e.inode.flag == Inode.READ || e.inode.flag == Inode.WRITE)
+              switch (e.inode.flag) {
+                  case 1:  e.inode.flag = 0; break;
+                  case 2:  e.inode.flag = 0; break;
+                  case 4:  e.inode.flag = 3; break;
+                  case 5:  e.inode.flag = 3;
+                }
                 notify();
                 e.inode.toDisk(e.iNumber);
                 return true;
@@ -99,4 +109,5 @@ public class FileTable {
     // should be called before starting a format
     public synchronized boolean fempty( ) {
        return table.isEmpty( );
+    }
  }
