@@ -34,6 +34,7 @@ public class FileSystem{
     public FileSystem(int blocks){
         superblock = new SuperBlock(blocks);
         directory = new Directory(superblock.inodeBlocks);
+	filetable = new FileTable(directory);	
 
         // read the "/" file from disk
         FileTableEntry directoryEntry = open("/", "r");
@@ -100,7 +101,7 @@ public class FileSystem{
         // filename is passed to directroy
         FileTableEntry ftEntry = filetable.falloc(fileName, mode);
 
-        if((mode == "w") && (!deallocAllBlocks(ftEntry))){
+        if(mode == "w" && !this.deallocAllBlocks(ftEntry)){
             return null;
         }
         return ftEntry; //return FileTable Entry 
@@ -223,8 +224,8 @@ public class FileSystem{
 
                 // check if it current block is null
                 if(location == -1){
-                    short newLocation = (short) superblock.nextFreeBlock();
-                    int testPtr = fd.inode.getIndexBlockNumber(fd.seekPtr, newLocation);
+                    short newLocation = (short) superblock.getFreeBlock();
+                    int testPtr = fd.inode.registerTargetBlock(fd.seekPtr, newLocation);
 
                     switch(testPtr){
                         case 0:
@@ -233,7 +234,7 @@ public class FileSystem{
                         case -1:
                                 return -1;
                         case -3:
-                            short freeBlock = (short) this.superblock.nextFreeBlock();
+                            short freeBlock = (short) this.superblock.getFreeBlock();
 
                             // indirect pointer is empty
                             if(!fd.inode.setIndexBlock(freeBlock)){
@@ -241,7 +242,7 @@ public class FileSystem{
                             }
 
                             // check block pointer error
-                            if(fd.inode.getIndexBlockNumber(fd.seekPtr, newLocation) != 0){
+                            if(fd.inode.registerTargetBlock(fd.seekPtr, newLocation) != 0){
                                 return -1;
                             }
                             break;
@@ -364,7 +365,7 @@ private boolean deallocAllBlocks(FileTableEntry fileTableEntry) {
             fileTableEntry.inode.direct[blockId] = invalid;
         }
     }
-    byte[] data = fileTableEntry.inode.freeIndirectBlock();
+    byte[] data = fileTableEntry.inode.unregisterIndexBlock();
     if (data != null) {
         short blockId;
         while ((blockId = SysLib.bytes2short(data, 0)) != invalid) {

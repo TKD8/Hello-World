@@ -2,13 +2,13 @@ import java.util.Vector;
 
 public class FileTable {
 
-    private Vector<FileTableEntry> table;         // the actual entity of this file table
+    private Vector table;         // the actual entity of this file table
     private Directory dir;        // the root directory
     short USED = 0;
     short UNUSED = 0;
 
     public FileTable( Directory directory ) { // constructor
-       table = new Vector<FileTableEntry>();     // instantiate a file (structure) table
+       table = new Vector();     // instantiate a file (structure) table
        dir = directory;           // receive a reference to the Director
     }                             // from the file system
 
@@ -20,60 +20,50 @@ public class FileTable {
     // return a reference to this file (structure) table entry
     public synchronized FileTableEntry falloc( String filename, String mode ) {
         short iNumber = -1;
-        Inode inode = null;
+        Inode inode;
 
-        while (true)
-        {
-            iNumber = filename.equals("/") ? 0 : dir.namei(filename);
-            if(iNumber < 0){
-                break;
-            }
-            if (iNumber >= 0)
-            {
-                inode = new Inode(iNumber);
+        loop: {
+        inode = null;
+        while ((iNumber = filename.equals("/") ? 0 : dir.namei(filename)) >= 0){
+        
+            inode = new Inode(iNumber);  
                 if (mode.compareTo("r") == 0)
                 {
-                    if (inode.flag == 0 ||
-                    inode.flag == 0)
+                    if (inode.flag == 0 || inode.flag == 1)
                     {
-                        inode.flag = 1;
+                        inode.flag = 1;                   
+                         break loop;         // return to the while loop
                     }
-                    break;
-                }
                     try
                     {
                         wait();
                     }
-                    catch (InterruptedException e)
-                    {}
-                
-            }else
-                {
-                    if (inode.flag == 0 || inode.flag == 3 )
-                    {
+                    catch (InterruptedException e){}
+                    continue;
+                }
+                    if (inode.flag == 0 || inode.flag == 3 ){  
                         inode.flag = 2;
-                        break;
+                        break loop;         // return to the while loop
                     }
-                    else
-                    {
+                    if(inode.flag == 1 || inode.flag == 2){
+                        inode.flag = (short)(inode.flag + 3);
+                        inode.toDisk(iNumber);
+                    }
                         try
                         {
                             wait();
                         }
                         catch (InterruptedException e){}
-                    }
-
             }
             if (!mode.equals("r"))
             {
                 iNumber = dir.ialloc(filename);
                 inode = new Inode();
                 inode.flag = 2;
-                break;
             }
-            else
+            else{
                 return null;
-
+            }
         }
 
         inode.count++;

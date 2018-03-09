@@ -33,7 +33,7 @@ public class SuperBlock
 	*/
     public SuperBlock( int diskSize )
     {
-        byte[] superBlock = new byte[Disk.blockSize];
+        byte[] superBlock = new byte[512];
         SysLib.rawread(0, superBlock);
         totalBlocks = SysLib.bytes2int(superBlock, 0);
         inodeBlocks = SysLib.bytes2int(superBlock, 4);
@@ -44,11 +44,8 @@ public class SuperBlock
         {
             return;
         }
-        else
-        {
             totalBlocks = diskSize;
-            format(defaultInodeBlocks);
-        }
+            format(); 
     }
 
 	/**
@@ -85,8 +82,8 @@ public class SuperBlock
 
 		byte [] newEmpty = null;	// new dummy blocks
 
-		for (int j = freeList; j < totalBlocks; j++){
-			newEmpty = new byte[512];
+		for (int j = freeList; j < totalBlocks; ++j){
+			newEmpty = new byte[Disk.blockSize];
 
 			// erase everything
 			for(int k = 0; k < 512; k++){
@@ -114,7 +111,7 @@ public class SuperBlock
     /**
      * nextFreeBlock
      */
-     public int getFreeBlock()
+     public int getFreeBlock()  //nextFreeBlock()
       {
         int i = freeList;
 
