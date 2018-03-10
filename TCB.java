@@ -42,7 +42,7 @@ public class TCB {
 	return terminated;
     }
 
-    // added for the file system
+    // add FileTableEntry to ftEnt and return the index
     public synchronized int getFd( FileTableEntry entry ) {
 	if ( entry == null )
 	    return -1;
@@ -55,7 +55,7 @@ public class TCB {
 	return -1;
     }
 
-    // added for the file system
+    // return FileTableEntry and reset it
     public synchronized FileTableEntry returnFd( int fd ) {
 	if ( fd >= 3 && fd < 32 ) {
 	    FileTableEntry oldEnt = ftEnt[fd];
@@ -66,7 +66,7 @@ public class TCB {
 	    return null;
     }
 
-    // added for the file systme
+    // return FileTableEntry
     public synchronized FileTableEntry getFtEnt( int fd ) {
 	if ( fd >= 3 && fd < 32 )
 	    return ftEnt[fd];
