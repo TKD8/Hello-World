@@ -128,6 +128,7 @@ public class SuperBlock
         return i;	// return block location
       }
 
+    // add block to freeList
     public boolean returnBlock(int paramInt)
      {
        if (paramInt >= 0) {
