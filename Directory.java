@@ -81,6 +81,7 @@ public class Directory {
         return true;
    }
 
+   // returns the number representing the filename
    public short namei( String filename ) {
       String name;
       int length = filename.length();
