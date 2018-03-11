@@ -1,3 +1,12 @@
+/*
+CSS 430
+Winter 2018
+FileTable.java
+
+Author: Tyler Do 
+
+*/
+
 import java.util.Vector;
 
 public class FileTable {
@@ -25,13 +34,13 @@ public class FileTable {
         loop: {
         inode = null;
         while ((iNumber = filename.equals("/") ? 0 : dir.namei(filename)) >= 0){
-        
-            inode = new Inode(iNumber);  
+
+            inode = new Inode(iNumber);
                 if (mode.compareTo("r") == 0)
                 {
                     if (inode.flag == 0 || inode.flag == 1)
                     {
-                        inode.flag = 1;                   
+                        inode.flag = 1;
                          break loop;         // return to the while loop
                     }
                     try
@@ -41,7 +50,7 @@ public class FileTable {
                     catch (InterruptedException e){}
                     continue;
                 }
-                    if (inode.flag == 0 || inode.flag == 3 ){  
+                    if (inode.flag == 0 || inode.flag == 3 ){
                         inode.flag = 2;
                         break loop;         // return to the while loop
                     }
@@ -71,7 +80,7 @@ public class FileTable {
         FileTableEntry fte = new FileTableEntry(inode, iNumber, mode);
         table.addElement(fte);
         return fte;
-        
+
     }
 
     // receive a file table entry reference

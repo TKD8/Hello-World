@@ -1,3 +1,13 @@
+/*
+CSS 430
+Winter 2018
+Kernel.java
+
+Author: Tyler Do
+Author: Artiom Voronin
+
+*/
+
 import java.util.*;
 import java.lang.reflect.*;
 import java.io.*;
@@ -41,7 +51,7 @@ public class Kernel
    public final static int OPEN    = 14; // SysLib.open( String fileName )
    public final static int CLOSE   = 15; // SysLib.close( int fd )
    public final static int SIZE    = 16; // SysLib.size( int fd )
-   public final static int SEEK    = 17; // SysLib.seek( int fd, int offest, 
+   public final static int SEEK    = 17; // SysLib.seek( int fd, int offest,
 
    //              int whence )
    public final static int FORMAT  = 18; // SysLib.format( int files )
@@ -77,7 +87,7 @@ public class Kernel
 
    // File System
    private static FileSystem fs;
-   private final static int COND_DISK_REQ = 1; // wait condition 
+   private final static int COND_DISK_REQ = 1; // wait condition
    private final static int COND_DISK_FIN = 2; // wait condition
 
 
@@ -93,10 +103,10 @@ public class Kernel
       TCB myTcb;
       switch( irq ) {
          case INTERRUPT_SOFTWARE: // System calls
-            switch( cmd ) { 
+            switch( cmd ) {
                case BOOT:
                  // instantiate and start a scheduler
-                  scheduler = new Scheduler( ); 
+                  scheduler = new Scheduler( );
                   scheduler.start( );
 
                   // instantiate and start a disk
@@ -153,11 +163,11 @@ public class Kernel
                case RAWWRITE: // write a block of data to disk
                   while ( disk.write( param, ( byte[] )args ) == false )
                      ioQueue.enqueueAndSleep( COND_DISK_REQ );
-                  
+
                   while ( disk.testAndResetReady( ) == false )
                      ioQueue.enqueueAndSleep( COND_DISK_FIN );
                   return OK;
-                  
+
                case SYNC: // synchronize disk data
                   fs.sync( );
                   while ( disk.sync( ) == false )
@@ -179,7 +189,7 @@ public class Kernel
                            StringBuffer buf = ( StringBuffer )args;
 
                            // append the keyboard intput to this read buffer
-                           buf.append( s ); 
+                           buf.append( s );
 
                            // return the number of chars read from keyboard
                            return s.length( );
@@ -234,7 +244,7 @@ public class Kernel
                   cache.flush( );
                   return OK;
 
-               case OPEN: // opens the file specified by the fileName string   
+               case OPEN: // opens the file specified by the fileName string
                   if ( ( myTcb = scheduler.getMyTcb( ) ) != null ) {
                      String[] s = ( String[] )args;
                      return myTcb.getFd( fs.open( s[0], s[1] ) );
@@ -268,10 +278,10 @@ public class Kernel
                      FileTableEntry ftEnt = myTcb.getFtEnt( param );
                      if ( ftEnt != null )
                         return fs.seek( ftEnt, seekArgs[0], seekArgs[1] );
-                  } 
+                  }
                   return ERROR;
 
-               case FORMAT: // format the disk 
+               case FORMAT: // format the disk
                   return ( fs.format( param ) == true ) ? OK : ERROR;
 
                case DELETE: // deletes the file specified by fileName
@@ -304,7 +314,7 @@ public class Kernel
 
       try {
          //get the user thread class from its name
-         Class thrClass = Class.forName( thrName ); 
+         Class thrClass = Class.forName( thrName );
          if ( args.length == 1 ) // no arguments
             thrObj = thrClass.newInstance( ); // instantiate this class obj
          else {                  // some arguments
@@ -315,7 +325,7 @@ public class Kernel
                thrArgs[i - 1] = args[i];
             Object[] constructorArgs = new Object[] { thrArgs };
             // locate this class object's constructors
-            Constructor thrConst 
+            Constructor thrConst
                = thrClass.getConstructor( new Class[] {String[].class} );
 
 

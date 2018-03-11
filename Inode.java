@@ -1,3 +1,14 @@
+/*
+CSS 430
+Winter 2018
+Inode.java
+
+Author: Artiom Voronin
+Author Natnael Tereza
+
+*/
+
+
 public class Inode {
    private final static int iNodeSize = 32;       // fix to 32 bytes
    public final static int directSize = 11;      // # direct pointers
@@ -11,7 +22,7 @@ public class Inode {
 
    // a default constructor
    // assigns empty values
-   public Inode( ) {                                     
+   public Inode( ) {
       length = 0;
       count = 0;
       flag = 1;
@@ -22,7 +33,7 @@ public class Inode {
    }
 
    // parametized constructor
-   public Inode( short iNumber ) {                       
+   public Inode( short iNumber ) {
         int n = 1 + iNumber / 16;
         byte[] arrby = new byte[512];
         SysLib.rawread((int)n, (byte[])arrby);
@@ -40,7 +51,7 @@ public class Inode {
    }
 
    // save to disk as the i-th inode
-   public void toDisk( short iNumber ) {  
+   public void toDisk( short iNumber ) {
         int n;
         byte[] arrby = new byte[32];
         int n2 = 0;
@@ -59,14 +70,14 @@ public class Inode {
         SysLib.rawread((int)n, (byte[])arrby2);
         n2 = iNumber % 16 * 32;
         System.arraycopy(arrby, 0, arrby2, n2, 32);
-        SysLib.rawwrite((int)n, (byte[])arrby2); 
-   } 
-   
+        SysLib.rawwrite((int)n, (byte[])arrby2);
+   }
+
     // returns indirect pointer
     public  int findIndexBlock()
     {
       return indirect;
-       
+
     }
 
     // set indirect pointer
@@ -103,7 +114,7 @@ public class Inode {
         return SysLib.bytes2short((byte[])arrby, (int)(n3 * 2));
     }
     // get index of a block
-    public int registerTargetBlock (int entry, short offset){   
+    public int registerTargetBlock (int entry, short offset){
         int n2 = entry / 512;
         if (n2 < 11) {
             if (this.direct[n2] >= 0) {
@@ -129,7 +140,7 @@ public class Inode {
         return 0;
     }
     // free indirect block
-    public byte[] unregisterIndexBlock(){  
+    public byte[] unregisterIndexBlock(){
         if (this.indirect >= 0) {
             byte[] arrby = new byte[512];
             SysLib.rawread((int)this.indirect, (byte[])arrby);
@@ -157,6 +168,6 @@ public class Inode {
         SysLib.rawwrite(blockNumber, data);
        return true;
     }
-    
-    
+
+
 }

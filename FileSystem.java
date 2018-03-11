@@ -5,12 +5,12 @@
 *
 * Responsible for manipulating disk. It provides user threads with system calls
 * that will allow them to format, to open, to read from, to write to,
-* to update the seek pointer of , to close, to delete, and to get the size of 
+* to update the seek pointer of , to close, to delete, and to get the size of
 * their files. It hides all the implementations from user threads.
 *
-* @author: Natnael
-* @author: Artiom
-* @author: Tylor
+* @author: Natnael Tereza
+* @author: Artiom Voronin
+* @author: Tyler Do
 */
 
 public class FileSystem{
@@ -34,20 +34,20 @@ public class FileSystem{
     public FileSystem(int blocks){
         superblock = new SuperBlock(blocks);
         directory = new Directory(superblock.inodeBlocks);
-	filetable = new FileTable(directory);	
+	filetable = new FileTable(directory);
 
         // read the "/" file from disk
         FileTableEntry directoryEntry = open("/", "r");
         int directorySize = fsize(directoryEntry);
 
         if(directorySize > 0){
-            
+
             // the directory contains data
             // let's read, and copy it
             byte[] directoryData = new byte[directorySize];
             read(directoryEntry, directoryData);
             directory.bytes2directory(directoryData);
-            
+
             }
             close(directoryEntry);	// close the diectory
     }
@@ -71,7 +71,7 @@ public class FileSystem{
 
     /**
     * format:
-    * Formats the disk (Disk.java's data contents).  
+    * Formats the disk (Disk.java's data contents).
     * @param files amount of files being formatted
     */
     public boolean format(int files){
@@ -82,7 +82,7 @@ public class FileSystem{
         directory = new Directory(superblock.inodeBlocks);
 
         // file table is created and store directory in file table
-        filetable = new FileTable(directory);	
+        filetable = new FileTable(directory);
 
         return true;
     }
@@ -91,7 +91,7 @@ public class FileSystem{
     * open
     *
     * Responsible for opening a file specified by fileName string
-    * in the given mode (where "r" = ready only, "w" = write only, 
+    * in the given mode (where "r" = ready only, "w" = write only,
     * "w+" = read/write, "a" = append)
     * @param fileName name of file opening
     * @param mode purpose of open
@@ -104,7 +104,7 @@ public class FileSystem{
         if(mode == "w" && !this.deallocAllBlocks(ftEntry)){
             return null;
         }
-        return ftEntry; //return FileTable Entry 
+        return ftEntry; //return FileTable Entry
     }
 
     /**
@@ -112,7 +112,7 @@ public class FileSystem{
     *
     * Responsible for closing the file corresponding to the given
     * file table entry. It returns true if successful or false otherwise
-    * @param entry	
+    * @param entry
     */
     public boolean close(FileTableEntry entry){
             // synchronize the Entry
@@ -129,7 +129,7 @@ public class FileSystem{
     * fsize
     * Returns the file size in bytes indicated by the fd
     * @param fd the fileTableEntry queue
-    * @return size 
+    * @return size
     *
     */
     public synchronized int fsize(FileTableEntry fd){
@@ -142,18 +142,18 @@ public class FileSystem{
     }
     /**
     * read:
-    * Reads up to buffer.length bytes from the file indicated by fd, 
+    * Reads up to buffer.length bytes from the file indicated by fd,
     * starting at the position currently pointed to by the seek pointer.
-    * If bytes remaining between the current seek pointer and the end of 
-    * file are less than buffer.length, SysLib.read reads as many bytes as 
-    * possible, putting them into the beginning of buffer. It increments 
-    * the seek pointer by the number of bytes to have been read. The return 
-    * value is the number of bytes that have been read, or a negative 
+    * If bytes remaining between the current seek pointer and the end of
+    * file are less than buffer.length, SysLib.read reads as many bytes as
+    * possible, putting them into the beginning of buffer. It increments
+    * the seek pointer by the number of bytes to have been read. The return
+    * value is the number of bytes that have been read, or a negative
     * value upon an error.
-    * 
+    *
     * @param fd table fd reading from
     * @param buffer size of data being read
-    * 
+    *
     * @return amount of data
     */
     public int read (FileTableEntry fd, byte[] buffer){
@@ -197,15 +197,15 @@ public class FileSystem{
 
     /**
     * write;
-    * Writes the contents of buffer to the file indicated by fd, starting at the position 
+    * Writes the contents of buffer to the file indicated by fd, starting at the position
     * indicated by the seek pointer. The operation may overwrite existing data in the file
-    * and/or append to the end of the file. SysLib.write increments the seek pointer by 
-    * the number of bytes to have been written. The return value is the number of bytes 
+    * and/or append to the end of the file. SysLib.write increments the seek pointer by
+    * the number of bytes to have been written. The return value is the number of bytes
     * that have been written, or a negative value upon an error.
     *
     * @param fd tabble fd reading from
     * @param buffer size of data being read
-    * 
+    *
     * @return the number of bytes written, -1 if fails
     */
     public int write(FileTableEntry fd, byte [] buffer){
@@ -283,14 +283,14 @@ public class FileSystem{
 
     /**
     * seek:
-    * Updates the seek pointer corresponding to fd as follows. It returns 0 if the 
-    * If whence is SEEK_SET (= 0), the file's seek pointer is set to offset bytes 
-    * from the beginning of the file 
-    * If whence is SEEK_CUR (= 1), the file's seek pointer is set to its current value 
-    * plus the offset. The offset can be positive or negative. 
-    * If whence is SEEK_END (= 2), the file's seek pointer is set to the size of the 
-    * file plus the offset. The offset can be positive or negative.  
-    * 
+    * Updates the seek pointer corresponding to fd as follows. It returns 0 if the
+    * If whence is SEEK_SET (= 0), the file's seek pointer is set to offset bytes
+    * from the beginning of the file
+    * If whence is SEEK_CUR (= 1), the file's seek pointer is set to its current value
+    * plus the offset. The offset can be positive or negative.
+    * If whence is SEEK_END (= 2), the file's seek pointer is set to the size of the
+    * file plus the offset. The offset can be positive or negative.
+    *
     * @param fd the file table entry
     * @param offset initial offset
     * @param whence start of seek pointer
@@ -333,10 +333,10 @@ public class FileSystem{
 
     /**
     * delete:
-    * Deletes the file specified by fileName. All blocks used by file 
-    * are freed. If the file is currently open, it is not deleted and 
-    * the operation returns a -1. If successfully deleted a 0 is returned. 
-    * 
+    * Deletes the file specified by fileName. All blocks used by file
+    * are freed. If the file is currently open, it is not deleted and
+    * the operation returns a -1. If successfully deleted a 0 is returned.
+    *
     * @param fileName: file name need to be deleted
     * @return 0 for success and -1 for unsuccessful
     */
@@ -352,7 +352,7 @@ public class FileSystem{
     * @param FileTableEntry
     * @return true or false
     *
-    */ 
+    */
 private boolean deallocAllBlocks(FileTableEntry fileTableEntry) {
     short invalid = -1;
     if (fileTableEntry.inode.count != 1) {

@@ -1,3 +1,12 @@
+/*
+CSS 430
+Winter 2018
+Directory.java
+
+Author: Tyler Do 
+
+*/
+
 public class Directory {
    private static int maxChars = 30; // max characters of each file name
 

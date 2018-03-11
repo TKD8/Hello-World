@@ -1,3 +1,11 @@
+/*
+CSS 430
+Winter 2018
+Scheduler.java
+
+Author: Artiom Voronin
+*/
+
 import java.util.*;
 
 public class Scheduler extends Thread
@@ -6,11 +14,11 @@ public class Scheduler extends Thread
     private int timeSlice;
     private static final int DEFAULT_TIME_SLICE = 1000;
 
-    // New data added to p161 
+    // New data added to p161
     private boolean[] tids; // Indicate which ids have been used
     private static final int DEFAULT_MAX_THREADS = 10000;
 
-    // A new feature added to p161 
+    // A new feature added to p161
     // Allocate an ID array, each element indicating if that id has been used
     private int nextId = 0;
     private void initTid( int maxThreads ) {
@@ -19,7 +27,7 @@ public class Scheduler extends Thread
             tids[i] = false;
     }
 
-    // A new feature added to p161 
+    // A new feature added to p161
     // Search an available thread ID and provide a new thread with this ID
     private int getNewTid( ) {
         for ( int i = 0; i < tids.length; i++ ) {
@@ -33,7 +41,7 @@ public class Scheduler extends Thread
         return -1;
     }
 
-    // A new feature added to p161 
+    // A new feature added to p161
     // Return the thread ID and set the corresponding tids element to be unused
     private boolean returnTid( int tid ) {
         if ( tid >= 0 && tid < tids.length && tids[tid] == true ) {
@@ -43,7 +51,7 @@ public class Scheduler extends Thread
         return false;
     }
 
-    // A new feature added to p161 
+    // A new feature added to p161
     // Retrieve the current thread's TCB from the queue
     public TCB getMyTcb( ) {
         Thread myThread = Thread.currentThread( ); // Get my thread object
@@ -58,7 +66,7 @@ public class Scheduler extends Thread
         return null;
     }
 
-    // A new feature added to p161 
+    // A new feature added to p161
     // Return the maximal number of threads to be spawned in the system
     public int getMaxThreads( ) {
         return tids.length;
@@ -76,7 +84,7 @@ public class Scheduler extends Thread
         initTid( DEFAULT_MAX_THREADS );
     }
 
-    // A new feature added to p161 
+    // A new feature added to p161
     // A constructor to receive the max number of threads to be spawned
     public Scheduler( int quantum, int maxThreads ) {
         timeSlice = quantum;
@@ -99,7 +107,7 @@ public class Scheduler extends Thread
         if ( tid == -1)
             return null;
         TCB tcb = new TCB( t, tid, pid ); // create a new TCB
-    
+
         // the following if and for statements are for file system.
         if ( parentTcb != null ) {
             for ( int i = 0; i < 32; i++ ) {
@@ -117,7 +125,7 @@ public class Scheduler extends Thread
     // A new feature added to p161
     // Removing the TCB of a terminating thread
     public boolean deleteThread( ) {
-        TCB tcb = getMyTcb( ); 
+        TCB tcb = getMyTcb( );
         if ( tcb == null )
             return false;
         else {
@@ -139,13 +147,13 @@ public class Scheduler extends Thread
             sleep( milliseconds );
         } catch ( InterruptedException e ) { }
     }
-    
+
     // A modified run of p161
     public void run( ) {
         Thread current = null;
-    
+
         this.setPriority( 6 );
-        
+
         while ( true ) {
             try {
                 // get the next TCB and its thrad
@@ -164,14 +172,14 @@ public class Scheduler extends Thread
                     else {
                         // Spawn must be controlled by Scheduler
                         // Scheduler must start a new thread
-                        current.start( ); 
+                        current.start( );
                         current.setPriority( 4 );
                     }
                 }
-                
+
                 schedulerSleep( );
                 // System.out.println("* * * Context Switch * * * ");
-                
+
                 synchronized ( queue ) {
                     if ( current != null && current.isAlive( ) )
                         current.setPriority( 2 );
